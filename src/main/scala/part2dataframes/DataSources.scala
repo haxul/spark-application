@@ -39,9 +39,76 @@ object DataSources extends App {
     ))
     .load()
 
-  carsDF.write.format("json")
-    .mode(SaveMode.Append)
-    .option("path", "src/main/resources/data/cars_result.json")
+//  carsDF.write.format("json")
+//    .mode(SaveMode.Append)
+//    .option("path", "src/main/resources/data/cars_result.json")
+//    .save()
+
+    val anotherCars = spark.read
+      .format("json")
+      .schema(carsSchema)
+      .option("dateFormat", "YYYY-MM-dd")
+      .option("mode", "failFast")
+      .option("allowSingleQuotes", "true")
+      .option("compression", "uncompressed")
+      .json("src/main/resources/data/cars.json")
+
+  val stockSchema = StructType(Array(
+    StructField("symbol", StringType),
+    StructField("date", StringType),
+    StructField("price", DoubleType),
+  ))
+
+  val stocksDF  = spark.read
+    .schema(stockSchema)
+    .format("csv")
+//    .option("dateFormat", "MMM dd YYYY")
+    .option("header", "true")
+    .option("sep", ",")
+    .option("nullValue", "")
+    .csv("src/main/resources/data/stocks.csv")
+
+//  carsDF.write
+//    .mode(SaveMode.Overwrite)
+//    .parquet("src/main/resources/data/cars.parquet")
+  val path = "src/main/resources/data"
+  spark.read.text(s"$path/sampleTextFile.txt")
+
+  spark.read
+    .format("jdbc")
+    .option("driver", "org.postgresql.Driver")
+    .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
+    .option("user", "docker")
+    .option("password", "docker")
+    .option("dbtable", "public.employees")
+    .load()
+
+
+  /**
+    * Exercise
+    */
+
+  val moviesDF = spark.read
+    .format("json")
+    .option("inferSchema", "true")
+    .option("mode", "failFast")
+    .json(s"$path/movies.json")
+
+  moviesDF.write
+    .option("header", "true")
+    .option("sep", ",")
+    .option("nullValue", "")
+    .format("csv")
+    .option("path", "src/main/resources/data/movies.csv")
     .save()
 
+  moviesDF.write
+    .format("jdbc")
+    .option("driver", "org.postgresql.Driver")
+    .option("url", "jdbc:postgresql://localhost:5432/rtjvm")
+    .option("user", "docker")
+    .option("password", "docker")
+    .option("dbtable", "public.test_table")
+    .mode(SaveMode.Overwrite)
+    .save()
 }
