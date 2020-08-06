@@ -13,7 +13,7 @@ object Aggregations extends App {
 
 
   val genreCount = moviesDF.select(count(col("Major_Genre"))) //all values except null
-  moviesDF.select(count("*"))// all includes null
+  moviesDF.select(count("*")) // all includes null
   moviesDF.select(countDistinct(col("Major_Genre")))
   moviesDF.select(approx_count_distinct(col("Major_Genre")))
 
@@ -39,7 +39,7 @@ object Aggregations extends App {
   moviesDF.select(sum(col("US_Gross") + col("Worldwide_Gross")))
   moviesDF.select(countDistinct(col("Director")))
   moviesDF.groupBy(col("Director")).agg(
-    avg(col("IMDB_Rating")).as("IMDB_Rating"),
-    avg(col("US_Gross"))
-  ).orderBy(col("IMDB_Rating")).show()
+    avg(round(when(col("IMDB_Rating").isNull, 0).otherwise(col("IMDB_Rating")))).as("IMDB_Rating"),
+    sum(col("US_Gross"))
+  ).orderBy(col("IMDB_Rating").desc)
 }
