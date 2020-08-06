@@ -25,7 +25,21 @@ object Aggregations extends App {
     stddev(col("Rotten_Tomatoes_Rating"))
   )
 
-  moviesDF.groupBy(col("Major_Genre")).count().show()
+  moviesDF.groupBy(col("Major_Genre")).count()
+  moviesDF.groupBy("Major_Genre").avg("IMDB_Rating")
+  moviesDF.groupBy("Major_Genre").agg(
+    count("*").as("N_Movies"),
+    avg("IMDB_Rating").as("Avg_Rating")
+  ).orderBy(col("N_Movies"))
 
+  /**
+    * Exercise
+    */
 
+  moviesDF.select(sum(col("US_Gross") + col("Worldwide_Gross")))
+  moviesDF.select(countDistinct(col("Director")))
+  moviesDF.groupBy(col("Director")).agg(
+    avg(col("IMDB_Rating")).as("IMDB_Rating"),
+    avg(col("US_Gross"))
+  ).orderBy(col("IMDB_Rating")).show()
 }
