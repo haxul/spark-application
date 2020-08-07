@@ -60,7 +60,5 @@ object CommonTypes extends App {
   val carNamesFilterList = getCarNames.map(_.toLowerCase).map(name => col("Name").contains(name))
   val bigFilter = carNamesFilterList.fold(lit(false)) ((f1, f2) => f1 or f2)
 
-  carsDF.select(
-    col("Name")
-  ).where(bigFilter).show
+  carsDF.select("*").where(bigFilter)
 }
