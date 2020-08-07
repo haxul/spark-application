@@ -75,7 +75,8 @@ object Joins extends App {
     .option("dbtable", "public.titles")
     .load()
   // 1
-  employeesDF.join(salariesDF, employeesDF.col("emp_no") === salariesDF.col("emp_no"), "left")
+  val condition  = employeesDF.col("emp_no") === salariesDF.col("emp_no")
+  employeesDF.join(salariesDF, condition , "left")
     .select(employeesDF.col("emp_no"), salariesDF.col("salary")).groupBy("emp_no").max("salary")
   // 2
 
