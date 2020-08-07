@@ -36,4 +36,13 @@ object ComplexTypes extends App {
     .csv("src/main/resources/data/stocks.csv")
 
   stocksDF.withColumn("to_date", to_date(col("date"), "MMM d yyyy"))
+
+
+  moviesDF.select(
+    col("Title"),
+    struct(col("US_Gross"), col("Worldwide_Gross")).as("Profit")
+  ).select(col("Title"), col("Profit").getField("US_Gross").as("US_Profit"))
+
+  moviesDF.select(col("Title"), split(col("Title"), " |,").as("Title_Words"))
+    .select(expr("Title_Words[0]"), col("Title"), size(col("Title_Words")), array_contains(col("Title_Words"), "Love")).show()
 }
