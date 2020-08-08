@@ -3,6 +3,7 @@ package part2dataframes
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
+
 object Aggregations extends App {
   val spark = SparkSession.builder()
     .appName("Agg")
