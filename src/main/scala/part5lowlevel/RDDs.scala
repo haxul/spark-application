@@ -15,7 +15,34 @@ object RDDs extends App {
   // the SparkContext is the entry point for low-level APIs, including RDDs
   val sc = spark.sparkContext
 
+  val numbers = 1 to 1000000
+  val numbersRDD = sc.parallelize(numbers)
 
+  case class StockValue(company: String, date: String, price: Double)
+
+  def readStocks(filename: String): List[StockValue] = Source
+    .fromFile(filename)
+    .getLines()
+    .drop(1)
+    .map(line => line.split(","))
+    .map(tokens => StockValue(tokens(0), tokens(1), tokens(2).toDouble))
+    .toList
+
+  val stocksRDD = sc.parallelize(readStocks("src/main/resources/data/stocks.csv"))
+  val stockRDD2 = sc.textFile("src/main/resources/data/stocks.csv")
+    .map(line => line.split(","))
+    .filter(tokens => tokens(0).toUpperCase == tokens(0))
+    .map(tokens => StockValue(tokens(0), tokens(1), tokens(2).toDouble))
+
+  val stocksDF = spark.read
+    .option("header", "true")
+    .option("inferSchema", "true")
+    .csv("src/main/resources/data/stocks.csv")
+  import spark.implicits._
+  val stockRDD3 = stocksDF.as[StockValue].rdd
+
+  val numbersDF = numbersRDD.toDF("numbers")
+  val numbersDS = spark.createDataset(numbersRDD)
 }
 
 /*
