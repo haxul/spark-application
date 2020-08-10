@@ -28,7 +28,7 @@ object Datasets extends App {
                   miles_per_Gallon: Option[Double],
                   cylinders: Long,
                   displacement: Double,
-                  horsepower: Long,
+                  horsepower: Option[Long],
                   weight_in_lbs: Long,
                   acceleration: Double,
                   year: String,
@@ -50,7 +50,7 @@ object Datasets extends App {
   val carsDS = carsDF.as[Car]
 
   case class CarWithNameAndHorsepower(Name: String, Horsepower: Long)
-  carsDS.map(car => CarWithNameAndHorsepower(car.name, car.horsepower))
+  carsDS.map(car => CarWithNameAndHorsepower(car.name, car.horsepower.get))
 
   case class Guitar(id:Long, model:String, make:String, guitarType: String)
   val guitarsDS = readDF("guitars.json").as[Guitar]
@@ -71,4 +71,6 @@ object Datasets extends App {
 
   guitarPlayerDS.joinWith(guitarsDS, array_contains(guitarPlayerDS.col("guitars"), guitarsDS.col("id")), "left")
   .select(element_at(col("_1").getField("guitars"), 1))
+
+  carsDS.groupByKey(_.origin).count().show()
 }
