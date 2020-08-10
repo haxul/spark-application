@@ -1,5 +1,6 @@
 package part3typesdatasets
 
+import org.apache.spark.sql.functions.{array_contains, col, element_at}
 import org.apache.spark.sql.{DataFrame, Dataset, Encoders, SparkSession}
 
 
@@ -64,4 +65,10 @@ object Datasets extends App {
     .joinWith(bandDS, guitarPlayerDS.col("band") === bandDS.col("id"), "left")
 
 
+  /**
+    * Exercise
+    */
+
+  guitarPlayerDS.joinWith(guitarsDS, array_contains(guitarPlayerDS.col("guitars"), guitarsDS.col("id")), "left")
+  .select(element_at(col("_1").getField("guitars"), 1))
 }
