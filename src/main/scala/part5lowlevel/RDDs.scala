@@ -18,7 +18,7 @@ object RDDs extends App {
   val numbers = 1 to 1000000
   val numbersRDD = sc.parallelize(numbers)
 
-  case class StockValue(company: String, date: String, price: Double)
+  case class StockValue(symbol: String, date: String, price: Double)
 
   def readStocks(filename: String): List[StockValue] = Source
     .fromFile(filename)
@@ -43,6 +43,13 @@ object RDDs extends App {
 
   val numbersDF = numbersRDD.toDF("numbers")
   val numbersDS = spark.createDataset(numbersRDD)
+
+
+  val msftRDD = stocksRDD.filter(_.symbol == "MSFT")
+  val msftCount = msftRDD.count()
+  val companyNamesRDD = stocksRDD.map(_.symbol).distinct()
+
+
 }
 
 /*
