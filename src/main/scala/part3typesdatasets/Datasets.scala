@@ -51,4 +51,17 @@ object Datasets extends App {
   case class CarWithNameAndHorsepower(Name: String, Horsepower: Long)
   carsDS.map(car => CarWithNameAndHorsepower(car.name, car.horsepower))
 
+  case class Guitar(id:Long, model:String, make:String, guitarType: String)
+  val guitarsDS = readDF("guitars.json").as[Guitar]
+
+  case class GuitarPlayer(id:Long, name:String, guitars:Seq[Long], band:Long)
+  case class Band(id:Long, name: String, hometown:String, year:Long)
+
+  val guitarPlayerDS = readDF("guitarPlayers.json").as[GuitarPlayer]
+  val bandDS = readDF("bands.json").as[Band]
+
+  val guitarPlayersWithBands : Dataset[(GuitarPlayer, Band)] = guitarPlayerDS
+    .joinWith(bandDS, guitarPlayerDS.col("band") === bandDS.col("id"), "left")
+
+
 }
