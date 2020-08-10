@@ -46,26 +46,26 @@ object SparkSql extends App {
     .option("dbtable", s"public.$tableName")
     .load()
 
-  def transferTables(tableNames: List[String], shouldWriteToWarehouse: Boolean = false): Unit = tableNames.foreach { tableName =>
+  def transferTables(tableNames: List[String]): Unit = tableNames.foreach { tableName =>
     val tableDF = readTable(tableName)
     tableDF.createOrReplaceTempView(tableName)
-    tableDF.write
-      .mode(SaveMode.Overwrite)
-      .saveAsTable(tableName)
+//    tableDF.write
+//      .mode(SaveMode.Overwrite)
+//      .saveAsTable(tableName)
   }
 
-//  transferTables(List(
-//    "employees",
-//    "departments",
-//    "titles",
-//    "dept_emp",
-//    "salaries",
-//    "dept_manager")
-//  )
+  transferTables(List(
+    "employees",
+    "departments",
+    "titles",
+    "dept_emp",
+    "salaries",
+    "dept_manager")
+  )
 
   // read DF from loaded Spark tables
-  val employeesDF2 = spark.read.table("employees")
-  employeesDF2.show()
+//  val employeesDF2 = spark.read.table("employees")
+//  employeesDF2.show()
   //
   //  /**
   //    * Exercises
@@ -76,48 +76,54 @@ object SparkSql extends App {
   //    * 4. Show the name of the best-paying department for employees hired in between those dates.
   //    */
   //
-  //  // 1
-  //  val moviesDF = spark.read
-  //    .option("inferSchema", "true")
-  //    .json("src/main/resources/data/movies.json")
-  //
-  //  moviesDF.write
-  //    .mode(SaveMode.Overwrite)
-  //    .saveAsTable("movies")
-  //
-  //  // 2
-  //  spark.sql(
-  //    """
-  //      |select count(*)
-  //      |from employees
-  //      |where hire_date > '1999-01-01' and hire_date < '2000-01-01'
-  //    """.stripMargin
-  //  )
-  //
-  //  // 3
-  //  spark.sql(
-  //    """
-  //      |select de.dept_no, avg(s.salary)
-  //      |from employees e, dept_emp de, salaries s
-  //      |where e.hire_date > '1999-01-01' and e.hire_date < '2000-01-01'
-  //      | and e.emp_no = de.emp_no
-  //      | and e.emp_no = s.emp_no
-  //      |group by de.dept_no
-  //    """.stripMargin
-  //  )
-  //
-  //  // 4
-  //  spark.sql(
-  //    """
-  //      |select avg(s.salary) payments, d.dept_name
-  //      |from employees e, dept_emp de, salaries s, departments d
-  //      |where e.hire_date > '1999-01-01' and e.hire_date < '2000-01-01'
-  //      | and e.emp_no = de.emp_no
-  //      | and e.emp_no = s.emp_no
-  //      | and de.dept_no = d.dept_no
-  //      |group by d.dept_name
-  //      |order by payments desc
-  //      |limit 1
-  //    """.stripMargin
-  //  ).show()
+    // 1
+    val moviesDF = spark.read
+      .option("inferSchema", "true")
+      .json("src/main/resources/data/movies.json")
+     moviesDF.createOrReplaceTempView("movies")
+
+    spark.sql(
+      """
+        |select count(*) from movies
+        |""".stripMargin)
+//    moviesDF.write
+//      .mode(SaveMode.Overwrite)
+//      .saveAsTable("movies")
+
+
+    // 2
+    spark.sql(
+      """
+        |select count(*)
+        |from employees
+        |where hire_date > '1999-01-01' and hire_date < '2000-01-01'
+      """.stripMargin
+    )
+//
+//    // 3
+    spark.sql(
+      """
+        |select de.dept_no, avg(s.salary)
+        |from employees e, dept_emp de, salaries s
+        |where e.hire_date > '1999-01-01' and e.hire_date < '2000-01-01'
+        | and e.emp_no = de.emp_no
+        | and e.emp_no = s.emp_no
+        |group by de.dept_no
+      """.stripMargin
+    )
+//
+//    // 4
+    spark.sql(
+      """
+        |select avg(s.salary) payments, d.dept_name
+        |from employees e, dept_emp de, salaries s, departments d
+        |where e.hire_date > '1999-01-01' and e.hire_date < '2000-01-01'
+        | and e.emp_no = de.emp_no
+        | and e.emp_no = s.emp_no
+        | and de.dept_no = d.dept_no
+        |group by d.dept_name
+        |order by payments desc
+        |limit 1
+      """.stripMargin
+    ).show()
 }
